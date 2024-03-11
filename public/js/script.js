@@ -1,29 +1,26 @@
-const socket= io();
-socket.on("saludo", (saludo)=>{
-    console.log("Estoy recibiendo tu mensaje " + saludo);
-    socket.emit("respuesta", "respuesta del cliente");
+const socket = io();
+
+socket.on("saludo", (mensaje) => {
+    agregarAlHistorial("ChatBot", mensaje);
 });
 
 var enviarDatos = document.getElementById("enviarDatos");
 enviarDatos.addEventListener("submit", (e) => {
     e.preventDefault();
-    var nombre = document.getElementById("nombre").value;
-    var datos=document.getElementById("datos");
-    socket.emit("nombre", nombre);
-    socket.on("saludo", (saludo) =>{
-        //console.log(saludo);
-        datos.innerHTML=saludo;
-    });
-    /*
-    var usuario = document.getElementById("usuario").value;
-    var password = document.getElementById("password").value;
-    console.log("Recibiendo datos...");
-    console.log(nombre);
-    console.log(usuario);
-    console.log(password);
-
-    document.getElementById("nombre").value ="";
-    document.getElementById("usuario").value ="";
-    document.getElementById("password").value ="";
-    document.getElementById("nombre").focus(); */
+    var mensaje = document.getElementById("mensaje").value;
+    // Agrega el mensaje del usuario al historial antes de enviarlo
+    agregarAlHistorial("Tú", mensaje);
+    socket.emit("mensaje", mensaje);
+    document.getElementById("mensaje").value = "";
 });
+
+socket.on("respuesta", ({ respuesta }) => {
+    agregarAlHistorial("ChatBot", respuesta);
+});
+
+// Esta función añade mensajes al historial
+function agregarAlHistorial(usuario, mensaje) {
+    var historialHTML = document.getElementById("historial-chat").innerHTML;
+    historialHTML += `<div>${usuario}: ${mensaje}</div>`;
+    document.getElementById("historial-chat").innerHTML = historialHTML;
+}
